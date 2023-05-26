@@ -116,9 +116,11 @@ class Chain:
                 f'{self.node.address} at {time(self.env)}: Receiving block #{block.header.number} ({block.header.hash[:8]}) not on head ({self._head_hash[:8]}), adding to secondary chain')
             key = f'forks_{self.node.address}'
             self.env.data[key] += 1
-            block_td = self.get_pow_difficulty(block)
+            #block_td = self.get_pow_difficulty(block)
+            block_td = block.header.number
             # If the block should be the new head, replace the head
-            if block_td > self.get_pow_difficulty(self.head):
+            #if block_td > self.get_pow_difficulty(self.head):
+            if block_td > self.head.header.number:
                 b = block
                 new_chain = {}
                 # Find common ancestor

@@ -1,5 +1,6 @@
 import time
 import os
+import JsonParser
 from json import dumps as dump_json
 from blocksim.world import SimulationWorld
 from blocksim.node_factory import NodeFactory
@@ -90,3 +91,4 @@ def run_model():
 
 if __name__ == '__main__':
     run_model()
+    JsonParser.ParseOutput()
