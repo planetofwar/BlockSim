@@ -58,8 +58,27 @@ class NodeFactory:
                               miner_location,
                               node_address)
                 non_miners_list.append(new)
+         # Create the selfish miners nodes
+        selfish_miners_list = []
+        for miner_location, _miners in selfish_miners_list.items():
+            for i in range(_miners['how_many']):
+                node_id += 1
+                node_address = f'{miner_location.lower()}-{node_id}'
+                mega_hashrate_range = make_tuple(
+                    _miners['mega_hashrate_range'])
+                # Choose a random value on MH/s range and convert to H/s
+                hashrate = randint(
+                    mega_hashrate_range[0], mega_hashrate_range[1])*10**6
+                new = BTCNode(self._world.env,
+                              self._network,
+                              miner_location,
+                              node_address,
+                              hashrate,
+                              True,
+                              is_selfish=True)
+                selfish_miners_list.append(new)
         # Fully connect all the nodes
-        nodes_list = miners_list + non_miners_list
+        nodes_list = miners_list + non_miners_list + selfish_miners_list
         print(f'NodeFactory: Created {len(nodes_list)} bitcoin nodes')
         return nodes_list
 

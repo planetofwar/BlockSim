@@ -16,13 +16,15 @@ class BTCNode(Node):
                  location: str,
                  address: str,
                  hashrate=0,
-                 is_mining=False):
+                 is_mining=False,
+                 is_selfish=False):
         # Create the Bitcoin genesis block and init the chain
         genesis = Block(BlockHeader())
         consensus = Consensus(env)
         chain = Chain(env, self, consensus, genesis, BaseDB())
         self.hashrate = hashrate
         self.is_mining = is_mining
+        self.is_selfish = is_selfish
         super().__init__(env,
                          network,
                          location,
@@ -68,7 +70,10 @@ class BTCNode(Node):
         # Add the candidate block to the chain of the miner node
         self.chain.add_block(candidate_block)
         # We need to broadcast the new candidate block across the network
-        self.broadcast_new_blocks([candidate_block])
+        # If the node is selfish we don't broadcast the new block yet, but save it in private chain
+        if not self.is_selfish:
+            self.broadcast_new_blocks([candidate_block])
+            
 
     def _build_candidate_block(self, pending_txs):
         # Get the current head block
@@ -226,12 +231,9 @@ class BTCNode(Node):
         The destination only receives the hash of the block, and then ask for the entire block
         by calling `getdata` netowork protocol message (https://bitcoin.org/en/developer-reference#getdata)."""
         new_blocks_hashes = envelope.msg.get('hashes')
-        print(
-            f'{self.address} at {time(self.env)}: {len(new_blocks_hashes)} new blocks announced by {envelope.origin.address}')
-        get_data_msg = self.network_message.get_data(
-            new_blocks_hashes, 'block')
-        self.env.process(
-            self.send(envelope.origin.address, get_data_msg))
+        print(f'{self.address} at {time(self.env)}: {len(new_blocks_hashes)} new blocks announced by {envelope.origin.address}')
+        get_data_msg = self.network_message.get_data(new_blocks_hashes, 'block')
+        self.env.process(self.send(envelope.origin.address, get_data_msg))
 
     def _send_full_blocks(self, envelope):
         """Send a full block (https://bitcoin.org/en/developer-reference#block) for any node that
@@ -250,7 +252,15 @@ class BTCNode(Node):
         """Handle full blocks received.
         The node tries to add the block to the chain, by performing validation."""
         block = envelope.msg['block']
-        is_added = self.chain.add_block(block)
+        is_added = False
+        if not self.is_selfish:
+            is_added = self.chain.add_block(block)
+            # If it is a selfish block, if we recived a block that is one behind the private chain - broadcast the private chain
+        else:
+            if block.head.header.number == self.head.header.number - 1:
+                 self.broadcast_new_blocks([self.head])
+            else: #if the selfish miner is behind he will take the block, if he's ahed, the block will not be added in add_block function
+                is_added = self.chain.add_block(block)
         if is_added:
             print(
                 f'{self.address} at {time(self.env)}: Block assembled and added to the tip of the chain {block.header}')
