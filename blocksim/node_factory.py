@@ -17,17 +17,17 @@ class NodeFactory:
         self._world = world
         self._network = network
 
-    def create_nodes(self, miners, non_miners):
-        self._check_location(miners, non_miners)
+    def create_nodes(self, miners, non_miners, selfish_miners):
+        self._check_location(miners, non_miners, selfish_miners)
         # If a new blockchain is modeled it needs to be inserted here
         blockchain_switcher = {
             'bitcoin': self.create_bitcoin_nodes,
             'ethereum': self.create_ethereum_nodes
         }
         return blockchain_switcher.get(
-            self._world.blockchain, lambda: "Invalid blockchain")(miners, non_miners)
+            self._world.blockchain, lambda: "Invalid blockchain")(miners, non_miners, selfish_miners)
 
-    def create_bitcoin_nodes(self, miners, non_miners):
+    def create_bitcoin_nodes(self, miners, non_miners, selfish_miners):
         node_id = 0  # Unique ID for each node
         # Create the miners nodes
         miners_list = []
@@ -60,7 +60,7 @@ class NodeFactory:
                 non_miners_list.append(new)
          # Create the selfish miners nodes
         selfish_miners_list = []
-        for miner_location, _miners in selfish_miners_list.items():
+        for miner_location, _miners in selfish_miners.items():
             for i in range(_miners['how_many']):
                 node_id += 1
                 node_address = f'{miner_location.lower()}-{node_id}'
@@ -119,8 +119,8 @@ class NodeFactory:
         print(f'NodeFactory: Created {len(nodes_list)} ethereum nodes')
         return nodes_list
 
-    def _check_location(self, miners, non_miners):
-        nodes_location = list(miners.keys()) + list(non_miners)
+    def _check_location(self, miners, non_miners, selfish_miners):
+        nodes_location = list(miners.keys()) + list(non_miners) + list(selfish_miners)
         for location in nodes_location:
             if location not in self._world.locations:
                 raise RuntimeError(

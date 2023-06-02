@@ -1,5 +1,5 @@
 {
-  "blockchain": "ethereum",
+  "blockchain": "bitcoin",
   "locations": ["Tokyo", "Ohio", "Ireland"],
   "bitcoin": {
     "block_size_limit_mb": 1,

@@ -38,7 +38,7 @@ def report_node_chain(world, nodes_list):
 
 def run_model():
     now = int(time.time())  # Current time
-    duration = 3600  # seconds
+    duration = 36000  # seconds
 
     world = SimulationWorld(
         duration,
@@ -70,10 +70,16 @@ def run_model():
             'how_many': 1
         }
     }
+    selfish_miners ={
+        'Ireland':{
+            'how_many' : 1,
+            'mega_hashrate_range': "(20, 40)"
+        }
+    }
 
     node_factory = NodeFactory(world, network)
     # Create all nodes
-    nodes_list = node_factory.create_nodes(miners, non_miners)
+    nodes_list = node_factory.create_nodes(miners, non_miners, selfish_miners)
     # Start the network heartbeat
     world.env.process(network.start_heartbeat())
     # Full Connect all nodes
