@@ -14,7 +14,7 @@ def ParseOutput():
     # Iterating through the json
     # listfor count, item in enumerate(grocery):
     original_stdout = sys.stdout
-    data_list = data['tokyo-1_chain']
+    data_list = data['ohio-1_chain']
     chain_list = data_list['chain_list']
     with open('output.txt', 'w') as f:
         sys.stdout = f # Change the standard output to the file we created.

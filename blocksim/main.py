@@ -54,11 +54,15 @@ def run_model():
 
     miners = {
         'Ohio': {
-            'how_many': 0,
+            'how_many': 1,
             'mega_hashrate_range': "(20, 40)"
         },
         'Tokyo': {
-            'how_many': 2,
+            'how_many': 1,
+            'mega_hashrate_range': "(20, 40)"
+        },
+        'Ireland': {
+            'how_many': 1,
             'mega_hashrate_range': "(20, 40)"
         }
     }
@@ -67,6 +71,9 @@ def run_model():
             'how_many': 1
         },
         'Ireland': {
+            'how_many': 1
+        },
+        'Ohio': {
             'how_many': 1
         }
     }

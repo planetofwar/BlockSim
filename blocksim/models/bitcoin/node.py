@@ -257,7 +257,7 @@ class BTCNode(Node):
             else:
                 print(f'{self.address} at {time(self.env)}: Selfish miner found common ancestor: genesiss')
             return
-        self.broadcast_private_chain(Chain.get_parent(block=block,self=self.chain), Chain.get_parent(block=private_block,self=self.chain))
+        self.broadcast_private_chain(self.chain.get_parent(block=block), self.chain.get_parent(block=private_block))
         self.broadcast_new_blocks([private_block])
     
     def _receive_full_block(self, envelope):
@@ -269,20 +269,23 @@ class BTCNode(Node):
             is_added = self.chain.add_block(block)
             # If it is a selfish block, if we recived a block that is one behind the private chain - broadcast the private chain
         else:
-            if (block.header.number >= self.chain.head.header.number-1 or block.header.number == self.chain.head.header.number-3):
+            if (block.header.number == self.chain.head.header.number-1 or block.header.number == self.chain.head.header.number or block.header.number == self.chain.head.header.number-10):
+                 print(f'{self.address} at {time(self.env)}: Selfish miner adding to secondary chain')
+                 is_added = self.chain.add_block(block)
                  #Trying to race with new block
                  if block.header.number == self.chain.head.header.number:
                      self.broadcast_new_blocks([self.chain.head])
                      print(f'{self.address} at {time(self.env)}: Selfish miner trying to race')
                  #find common ancestor and broadcast the private chain
                  else:
-                    if(block.header.number == self.chain.head.header.number-3):
+                    if(block.header.number == self.chain.head.header.number-10):# for thecase we are too far ahed and simulation will end before we realse 
                         private_block = self.chain.head
-                        for i in range (2):
-                            private_block = Chain.get_parent(block=self.chain.head,self=self.chain)
-                    private_block = Chain.get_parent(block=self.chain.head,self=self.chain)
+                        for i in range (9):
+                            private_block = self.chain.get_parent(block=self.chain.head)
+                    private_block = self.chain.get_parent(block=self.chain.head)
                     print(f'{self.address} at {time(self.env)}: Selfish miner release private chain, heard of block number:{block.header.number}, we have:{self.chain.head.header.number}')                  
                     self.broadcast_private_chain(block,private_block)
+                    self.broadcast_new_blocks([self.chain.head])
             else: #if the selfish miner is behind he will take the block, if he's ahed, the block will not be added in add_block function
                 is_added = self.chain.add_block(block)
                 print(f'{self.address} at {time(self.env)}: Selfish miner saves private chain, heard of block number:{block.header.number}, we have:{self.chain.head.header.number}')
