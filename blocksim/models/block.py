@@ -22,13 +22,15 @@ class BlockHeader:
                  timestamp=int(time.time()),
                  coinbase=encode_hex(b'\x00' * 20),
                  difficulty=100000,
-                 nonce=''):
+                 nonce='',
+                 gamma=0):
         self.prevhash = prevhash
         self.number = number
         self.timestamp = timestamp
         self.coinbase = coinbase
         self.difficulty = difficulty
         self.nonce = nonce
+        self.gamma = gamma
 
     @property
     def hash(self):

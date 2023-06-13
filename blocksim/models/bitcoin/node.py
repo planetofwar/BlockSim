@@ -7,7 +7,7 @@ from blocksim.models.consensus import Consensus
 from blocksim.models.transaction_queue import TransactionQueue
 from blocksim.models.block import Block, BlockHeader
 from blocksim.utils import time, get_random_values
-
+import numpy as np
 
 class BTCNode(Node):
     def __init__(self,
@@ -64,7 +64,7 @@ class BTCNode(Node):
                 break
             pending_tx = self.transaction_queue.get()
             pending_txs.append(pending_tx)
-        candidate_block = self._build_candidate_block(pending_txs)
+        candidate_block = self._build_candidate_block(pending_txs, is_selfish=self.is_selfish)
         print(
             f'{self.address} at {time(self.env)}: New candidate block #{candidate_block.header.number} created {candidate_block.header.hash[:8]} with difficulty {candidate_block.header.difficulty}')
         # Add the candidate block to the chain of the miner node
@@ -77,19 +77,28 @@ class BTCNode(Node):
             print(f'{self.address} at {time(self.env)}: Selfish miner mined in private chain: #{candidate_block.header.number} created {candidate_block.header.hash[:8]} with difficulty {candidate_block.header.difficulty}')
             
 
-    def _build_candidate_block(self, pending_txs):
+    def _build_candidate_block(self, pending_txs , is_selfish =False):
         # Get the current head block
         prev_block = self.chain.head
         coinbase = self.address
         timestamp = self.env.now
         difficulty = self.consensus.calc_difficulty(prev_block, timestamp)
         block_number = prev_block.header.number + 1
+        #### Here I give the selfish miner gamma probabilty to win the race ###
+        random_value = np.random.uniform(0,1)
+        gamma = 0.5
+        if(random_value > gamma and is_selfish):
+            block_gamma = 1
+        else:
+            block_gamma = 0
+        ######
         candidate_block_header = BlockHeader(
             prev_block.header.hash,
             block_number,
             timestamp,
             coinbase,
-            difficulty)
+            difficulty,
+            gamma=block_gamma)
         return Block(candidate_block_header, pending_txs)
 
     def _read_envelope(self, envelope):
@@ -269,7 +278,7 @@ class BTCNode(Node):
             is_added = self.chain.add_block(block)
             # If it is a selfish block, if we recived a block that is one behind the private chain - broadcast the private chain
         else:
-            if (block.header.number == self.chain.head.header.number-1 or block.header.number == self.chain.head.header.number or block.header.number == self.chain.head.header.number-10):
+            if (block.header.number == self.chain.head.header.number-1 or block.header.number == self.chain.head.header.number):
                  print(f'{self.address} at {time(self.env)}: Selfish miner adding to secondary chain')
                  is_added = self.chain.add_block(block)
                  #Trying to race with new block
@@ -278,10 +287,6 @@ class BTCNode(Node):
                      print(f'{self.address} at {time(self.env)}: Selfish miner trying to race')
                  #find common ancestor and broadcast the private chain
                  else:
-                    if(block.header.number == self.chain.head.header.number-10):# for thecase we are too far ahed and simulation will end before we realse 
-                        private_block = self.chain.head
-                        for i in range (9):
-                            private_block = self.chain.get_parent(block=self.chain.head)
                     private_block = self.chain.get_parent(block=self.chain.head)
                     print(f'{self.address} at {time(self.env)}: Selfish miner release private chain, heard of block number:{block.header.number}, we have:{self.chain.head.header.number}')                  
                     self.broadcast_private_chain(block,private_block)

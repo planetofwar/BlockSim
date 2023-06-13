@@ -54,16 +54,16 @@ def run_model():
 
     miners = {
         'Ohio': {
-            'how_many': 1,
-            'mega_hashrate_range': "(20, 40)"
+            'how_many': 0,
+            'mega_hashrate_range': "(10, 10)"
         },
         'Tokyo': {
-            'how_many': 1,
-            'mega_hashrate_range': "(20, 40)"
+            'how_many': 6,
+            'mega_hashrate_range': "(10, 10)"
         },
         'Ireland': {
-            'how_many': 1,
-            'mega_hashrate_range': "(20, 40)"
+            'how_many': 0,
+            'mega_hashrate_range': "(10, 10)"
         }
     }
     non_miners = {
@@ -71,16 +71,16 @@ def run_model():
             'how_many': 1
         },
         'Ireland': {
-            'how_many': 1
+            'how_many': 0
         },
         'Ohio': {
-            'how_many': 1
+            'how_many': 0
         }
     }
     selfish_miners ={
-        'Ireland':{
+        'Tokyo':{
             'how_many' : 1,
-            'mega_hashrate_range': "(20, 40)"
+            'mega_hashrate_range': "(10, 10)"
         }
     }
 

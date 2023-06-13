@@ -120,7 +120,7 @@ class Chain:
             block_td = block.header.number
             # If the block should be the new head, replace the head
             #if block_td > self.get_pow_difficulty(self.head):
-            if block_td > self.head.header.number:
+            if block_td > self.head.header.number or (block.header.gamma > 0 and block.header.number == self.head.header.number):
                 b = block
                 new_chain = {}
                 # Find common ancestor
