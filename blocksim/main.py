@@ -58,7 +58,7 @@ def run_model():
             'mega_hashrate_range': "(10, 10)"
         },
         'Tokyo': {
-            'how_many': 6,
+            'how_many': 4,
             'mega_hashrate_range': "(10, 10)"
         },
         'Ireland': {

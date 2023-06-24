@@ -10,7 +10,7 @@
     },
     "time_between_blocks_seconds": {
       "name": "norm",
-      "parameters": "(560.3853998, 69.60796538)"
+      "parameters": "(560.0, 96.60796538)"
     }
   },
   "ethereum": {

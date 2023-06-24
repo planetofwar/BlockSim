@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 import simpy
 from schema import Schema, SchemaError
-
+import os
 
 class SimulationWorld:
     """The world starts here. It sets the simulation world.
@@ -93,6 +93,8 @@ class SimulationWorld:
             self._measured_delays['bitcoin']['tx_validation'],
             self._measured_delays['bitcoin']['block_validation'],
             self._measured_delays['bitcoin']['time_between_blocks_seconds'])
+        # print(self._measured_delays['bitcoin']['time_between_blocks_seconds'])
+        # print("%%%%")
         self._env.delays = self._measured_delays['bitcoin']
 
     def _set_ethereum_delays(self):
@@ -139,5 +141,7 @@ class SimulationWorld:
                     'Probability distribution must follow this schema: { \'name\': str, \'parameters\': tuple as a string }')
 
     def _read_json_file(self, file_location):
+        if "blocksim" in os.getcwd():
+            os.chdir("..")
         with open(file_location) as f:
             return json.load(f)

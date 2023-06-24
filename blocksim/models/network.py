@@ -1,7 +1,7 @@
 import scipy
 from simpy import Store
 from blocksim.utils import get_random_values, time, get_latency_delay
-
+import ast
 
 class Network:
     def __init__(self, env, name):
@@ -44,9 +44,42 @@ class Network:
         probability of the node being chosen.
         """
         self._init_lists()
+        time_last_block = -1
+        daa_method = "sliding" # must be "inc" or "period" or "sliding" or "-1"
+        window_size = 3
+        num_blocks = -1
+        sum_time = 0
+        original_mean = 560
+        window = []
         while True:
+            num_blocks += 1
+            if time_last_block != -1 and daa_method == "inc":
+                time_diff = original_mean - time_last_block
+                parameters_tuple = ast.literal_eval(self.env.delays['time_between_blocks_seconds']['parameters'])
+                parameters_list = list(parameters_tuple)
+                parameters_list[0] = original_mean + time_diff
+                self.env.delays['time_between_blocks_seconds']['parameters'] = str(tuple(parameters_list))
+            elif num_blocks > 0 and num_blocks % window_size == 0 and daa_method == "period":
+                time_diff = original_mean - (sum_time / window_size)
+                sum_time = 0
+                parameters_tuple = ast.literal_eval(self.env.delays['time_between_blocks_seconds']['parameters'])
+                parameters_list = list(parameters_tuple)
+                parameters_list[0] = original_mean + time_diff
+                self.env.delays['time_between_blocks_seconds']['parameters'] = str(tuple(parameters_list))
+            elif num_blocks > window_size and daa_method == "sliding":
+                time_diff = original_mean - (sum(window) / window_size)
+                parameters_tuple = ast.literal_eval(self.env.delays['time_between_blocks_seconds']['parameters'])
+                parameters_list = list(parameters_tuple)
+                parameters_list[0] = original_mean + time_diff
+                self.env.delays['time_between_blocks_seconds']['parameters'] = str(tuple(parameters_list))
             time_between_blocks = round(get_random_values(
                 self.env.delays['time_between_blocks_seconds'])[0], 2)
+
+            window.append(time_between_blocks)
+            if len(window) > window_size:
+                window = window[-window_size:]
+            sum_time += time_between_blocks
+            time_last_block = time_between_blocks
             yield self.env.timeout(time_between_blocks)
             orphan_blocks_probability = self.env.config[self.blockchain]['orphan_blocks_probability']
             simulate_orphan_blocks = scipy.random.choice(

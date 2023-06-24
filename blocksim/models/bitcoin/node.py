@@ -75,7 +75,7 @@ class BTCNode(Node):
             self.broadcast_new_blocks([candidate_block])
         else:
             print(f'{self.address} at {time(self.env)}: Selfish miner mined in private chain: #{candidate_block.header.number} created {candidate_block.header.hash[:8]} with difficulty {candidate_block.header.difficulty}')
-            
+
 
     def _build_candidate_block(self, pending_txs , is_selfish =False):
         # Get the current head block
@@ -258,7 +258,7 @@ class BTCNode(Node):
                 f'{self.address} at {time(self.env)}: Block {block.header.hash[:8]} preapred to send to {origin}')
             block_msg = self.network_message.block(block)
             self.env.process(self.send(origin, block_msg))
-    
+
     def broadcast_private_chain(self,block,private_block):
         if private_block == block:
             if block != self.chain.genesis:
@@ -268,7 +268,7 @@ class BTCNode(Node):
             return
         self.broadcast_private_chain(self.chain.get_parent(block=block), self.chain.get_parent(block=private_block))
         self.broadcast_new_blocks([private_block])
-    
+
     def _receive_full_block(self, envelope):
         """Handle full blocks received.
         The node tries to add the block to the chain, by performing validation."""
@@ -288,7 +288,7 @@ class BTCNode(Node):
                  #find common ancestor and broadcast the private chain
                  else:
                     private_block = self.chain.get_parent(block=self.chain.head)
-                    print(f'{self.address} at {time(self.env)}: Selfish miner release private chain, heard of block number:{block.header.number}, we have:{self.chain.head.header.number}')                  
+                    print(f'{self.address} at {time(self.env)}: Selfish miner release private chain, heard of block number:{block.header.number}, we have:{self.chain.head.header.number}')
                     self.broadcast_private_chain(block,private_block)
                     self.broadcast_new_blocks([self.chain.head])
             else: #if the selfish miner is behind he will take the block, if he's ahed, the block will not be added in add_block function
