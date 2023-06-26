@@ -25,6 +25,7 @@ class BTCNode(Node):
         self.hashrate = hashrate
         self.is_mining = is_mining
         self.is_selfish = is_selfish
+        self.have_private = False
         super().__init__(env,
                          network,
                          location,
@@ -74,6 +75,7 @@ class BTCNode(Node):
         if not self.is_selfish:
             self.broadcast_new_blocks([candidate_block])
         else:
+            self.have_private = True
             print(f'{self.address} at {time(self.env)}: Selfish miner mined in private chain: #{candidate_block.header.number} created {candidate_block.header.hash[:8]} with difficulty {candidate_block.header.difficulty}')
 
 
@@ -282,12 +284,14 @@ class BTCNode(Node):
                  print(f'{self.address} at {time(self.env)}: Selfish miner adding to secondary chain')
                  is_added = self.chain.add_block(block)
                  #Trying to race with new block
-                 if block.header.number == self.chain.head.header.number:
+                 if block.header.number == self.chain.head.header.number and self.have_private:
                      self.broadcast_new_blocks([self.chain.head])
                      print(f'{self.address} at {time(self.env)}: Selfish miner trying to race')
+                     self.have_private = False
                  #find common ancestor and broadcast the private chain
-                 else:
+                 elif self.have_private:
                     private_block = self.chain.get_parent(block=self.chain.head)
+                    self.have_private = False
                     print(f'{self.address} at {time(self.env)}: Selfish miner release private chain, heard of block number:{block.header.number}, we have:{self.chain.head.header.number}')
                     self.broadcast_private_chain(block,private_block)
                     self.broadcast_new_blocks([self.chain.head])

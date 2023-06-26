@@ -141,7 +141,7 @@ class SimulationWorld:
                     'Probability distribution must follow this schema: { \'name\': str, \'parameters\': tuple as a string }')
 
     def _read_json_file(self, file_location):
-        if "blocksim" in os.getcwd():
-            os.chdir("..")
+        #if "blocksim" in os.getcwd():
+        #    os.chdir("..")
         with open(file_location) as f:
             return json.load(f)

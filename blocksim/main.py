@@ -80,7 +80,7 @@ def run_model():
     selfish_miners ={
         'Tokyo':{
             'how_many' : 1,
-            'mega_hashrate_range': "(10, 10)"
+            'mega_hashrate_range': "(30, 30)"
         }
     }
 
