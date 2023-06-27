@@ -74,7 +74,8 @@ class Network:
                 self.env.delays['time_between_blocks_seconds']['parameters'] = str(tuple(parameters_list))
             time_between_blocks = round(get_random_values(
                 self.env.delays['time_between_blocks_seconds'])[0], 2)
-
+            if time_between_blocks <= 0:
+                time_between_blocks = 10
             window.append(time_between_blocks)
             if len(window) > window_size:
                 window = window[-window_size:]
