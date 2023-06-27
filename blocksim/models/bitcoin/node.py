@@ -280,7 +280,7 @@ class BTCNode(Node):
             is_added = self.chain.add_block(block)
             # If it is a selfish block, if we recived a block that is one behind the private chain - broadcast the private chain
         else:
-            if (block.header.number == self.chain.head.header.number-1 or block.header.number == self.chain.head.header.number):
+            if (block.header.number == self.chain.head.header.number-1 or block.header.number == self.chain.head.header.number or block.header.number < self.chain.head.header.number-10):
                  print(f'{self.address} at {time(self.env)}: Selfish miner adding to secondary chain')
                  is_added = self.chain.add_block(block)
                  #Trying to race with new block
@@ -291,6 +291,10 @@ class BTCNode(Node):
                  #find common ancestor and broadcast the private chain
                  elif self.have_private:
                     private_block = self.chain.get_parent(block=self.chain.head)
+                    if block.header.number < self.chain.head.header.number-10:
+                        advantage = self.chain.head.header.number - block.header.number
+                        for i in range (advantage-1):
+                           private_block = self.chain.get_parent(block=private_block) 
                     self.have_private = False
                     print(f'{self.address} at {time(self.env)}: Selfish miner release private chain, heard of block number:{block.header.number}, we have:{self.chain.head.header.number}')
                     self.broadcast_private_chain(block,private_block)
