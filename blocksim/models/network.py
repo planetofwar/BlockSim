@@ -45,7 +45,7 @@ class Network:
         """
         self._init_lists()
         time_last_block = -1
-        daa_method = "-1" # must be "inc" or "period" or "sliding" or "-1"
+        daa_method = "sliding" # must be "inc" or "period" or "sliding" or "-1"
         window_size = 3
         num_blocks = -1
         sum_time = 0
