@@ -75,7 +75,7 @@ class Network:
                 self.env.delays['time_between_blocks_seconds']['parameters'] = str(tuple(parameters_list))
             elif num_blocks > 0 and num_blocks % window_size == 0 and daa_method == "zeno":
                 time_diff = original_mean - (sum_time / window_size)
-                new_time = 0.1*time_diff
+                new_time = 0.5*time_diff
                 sum_time = 0
                 parameters_tuple = ast.literal_eval(self.env.delays['time_between_blocks_seconds']['parameters'])
                 parameters_list = list(parameters_tuple)
