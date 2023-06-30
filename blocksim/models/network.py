@@ -4,7 +4,7 @@ from blocksim.utils import get_random_values, time, get_latency_delay
 import ast
 
 class Network:
-    def __init__(self, env, name):
+    def __init__(self, env, name,window_size):
         self.env = env
         self.name = name
         self.blockchain = self.env.config['blockchain']
@@ -12,6 +12,7 @@ class Network:
         self._nodes = {}
         self._list_nodes = []
         self._list_probabilities = []
+        self.window_size = window_size
 
     def get_node(self, address):
         return self._nodes.get(address)
@@ -45,8 +46,8 @@ class Network:
         """
         self._init_lists()
         time_last_block = -1
-        daa_method = "sliding" # must be "inc" or "period" or "sliding" or "-1"
-        window_size = 3
+        daa_method = "zeno" # must be "inc" or "period" or "sliding" or "-1" or "zeno"
+        window_size = self.window_size
         num_blocks = -1
         sum_time = 0
         original_mean = 560
@@ -71,6 +72,14 @@ class Network:
                 parameters_tuple = ast.literal_eval(self.env.delays['time_between_blocks_seconds']['parameters'])
                 parameters_list = list(parameters_tuple)
                 parameters_list[0] = original_mean + time_diff
+                self.env.delays['time_between_blocks_seconds']['parameters'] = str(tuple(parameters_list))
+            elif num_blocks > 0 and num_blocks % window_size == 0 and daa_method == "zeno":
+                time_diff = original_mean - (sum_time / window_size)
+                new_time = 0.1*time_diff
+                sum_time = 0
+                parameters_tuple = ast.literal_eval(self.env.delays['time_between_blocks_seconds']['parameters'])
+                parameters_list = list(parameters_tuple)
+                parameters_list[0] = original_mean + new_time
                 self.env.delays['time_between_blocks_seconds']['parameters'] = str(tuple(parameters_list))
             time_between_blocks = round(get_random_values(
                 self.env.delays['time_between_blocks_seconds'])[0], 2)

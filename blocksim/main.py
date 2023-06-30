@@ -37,71 +37,73 @@ def report_node_chain(world, nodes_list):
 
 
 def run_model():
-    now = int(time.time())  # Current time
-    duration = 1000000  # seconds
+    windows = [2000]
+    for window in windows:
+        now = int(time.time())  # Current time
+        duration = 10000000  # seconds
 
-    world = SimulationWorld(
-        duration,
-        now,
-        'input-parameters/config.json',
-        'input-parameters/latency.json',
-        'input-parameters/throughput-received.json',
-        'input-parameters/throughput-sent.json',
-        'input-parameters/delays.json')
+        world = SimulationWorld(
+            duration,
+            now,
+            'input-parameters/config.json',
+            'input-parameters/latency.json',
+            'input-parameters/throughput-received.json',
+            'input-parameters/throughput-sent.json',
+            'input-parameters/delays.json')
 
-    # Create the network
-    network = Network(world.env, 'NetworkXPTO')
+        # Create the network
+        network = Network(world.env, 'NetworkXPTO',window)
 
-    miners = {
-        'Ohio': {
-            'how_many': 0,
-            'mega_hashrate_range': "(10, 10)"
-        },
-        'Tokyo': {
-            'how_many': 9,
-            'mega_hashrate_range': "(10, 10)"
-        },
-        'Ireland': {
-            'how_many': 0,
-            'mega_hashrate_range': "(10, 10)"
+        miners = {
+            'Ohio': {
+                'how_many': 0,
+                'mega_hashrate_range': "(10, 10)"
+            },
+            'Tokyo': {
+                'how_many': 7,
+                'mega_hashrate_range': "(10, 10)"
+            },
+            'Ireland': {
+                'how_many': 0,
+                'mega_hashrate_range': "(10, 10)"
+            }
         }
-    }
-    non_miners = {
-        'Tokyo': {
-            'how_many': 1
-        },
-        'Ireland': {
-            'how_many': 0
-        },
-        'Ohio': {
-            'how_many': 0
+        non_miners = {
+            'Tokyo': {
+                'how_many': 1
+            },
+            'Ireland': {
+                'how_many': 0
+            },
+            'Ohio': {
+                'how_many': 0
+            }
         }
-    }
-    selfish_miners ={
-        'Tokyo':{
-            'how_many' : 1,
-            'mega_hashrate_range': "(10, 10)"
+        selfish_miners ={
+            'Tokyo':{
+                'how_many' : 1,
+                'mega_hashrate_range': "(30, 30)"
+            }
         }
-    }
 
-    node_factory = NodeFactory(world, network)
-    # Create all nodes
-    nodes_list = node_factory.create_nodes(miners, non_miners, selfish_miners)
-    # Start the network heartbeat
-    world.env.process(network.start_heartbeat())
-    # Full Connect all nodes
-    for node in nodes_list:
-        node.connect(nodes_list)
+        node_factory = NodeFactory(world, network)
+        # Create all nodes
+        nodes_list = node_factory.create_nodes(miners, non_miners, selfish_miners)
+        # Start the network heartbeat
+        world.env.process(network.start_heartbeat())
+        # Full Connect all nodes
+        for node in nodes_list:
+            node.connect(nodes_list)
 
-    transaction_factory = TransactionFactory(world)
-    transaction_factory.broadcast(100, 400, 15, nodes_list)
+        transaction_factory = TransactionFactory(world)
+        transaction_factory.broadcast(100, 400, 15, nodes_list)
 
-    world.start_simulation()
+        world.start_simulation()
 
-    report_node_chain(world, nodes_list)
-    write_report(world)
+        report_node_chain(world, nodes_list)
+        write_report(world)
+        JsonParser.ParseOutput()
 
 
 if __name__ == '__main__':
     run_model()
-    JsonParser.ParseOutput()
