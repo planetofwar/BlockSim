@@ -37,10 +37,10 @@ def report_node_chain(world, nodes_list):
 
 
 def run_model():
-    windows = [2000]
+    windows = [500]
     for window in windows:
         now = int(time.time())  # Current time
-        duration = 10000000  # seconds
+        duration = 1000000  # seconds
 
         world = SimulationWorld(
             duration,
@@ -60,7 +60,7 @@ def run_model():
                 'mega_hashrate_range': "(10, 10)"
             },
             'Tokyo': {
-                'how_many': 7,
+                'how_many': 5,
                 'mega_hashrate_range': "(10, 10)"
             },
             'Ireland': {
@@ -82,7 +82,7 @@ def run_model():
         selfish_miners ={
             'Tokyo':{
                 'how_many' : 1,
-                'mega_hashrate_range': "(30, 30)"
+                'mega_hashrate_range': "(50, 50)"
             }
         }
 

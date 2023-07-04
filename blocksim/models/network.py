@@ -46,7 +46,7 @@ class Network:
         """
         self._init_lists()
         time_last_block = -1
-        daa_method = "zeno" # must be "inc" or "period" or "sliding" or "-1" or "zeno"
+        daa_method = "sliding" # must be "inc" or "period" or "sliding" or "-1" or "zeno"
         window_size = self.window_size
         num_blocks = -1
         sum_time = 0

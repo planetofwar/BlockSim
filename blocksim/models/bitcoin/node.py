@@ -88,7 +88,7 @@ class BTCNode(Node):
         block_number = prev_block.header.number + 1
         #### Here I give the selfish miner gamma probabilty to win the race ###
         random_value = np.random.uniform(0,1)
-        gamma = 0.5
+        gamma = 1
         if(random_value > gamma and is_selfish):
             block_gamma = 1
         else:
